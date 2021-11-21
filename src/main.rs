@@ -234,16 +234,17 @@ fn main() -> Result<(), String> {
     std::thread::sleep(std::time::Duration::from_millis(40));
 
     let result;
+    // Grab window under cursor
+    let whole_window_result = match get_window_at_point(&conn, root, start_pt, opt.remove_decorations) {
+        Some(r) => r,
+        None => get_window_geom(&conn, screen.root()),
+    };
     if selection.width() == 0 && selection.height() == 0 {
-        // Grab window under cursor
-        result = match get_window_at_point(&conn, root, start_pt, opt.remove_decorations) {
-            Some(r) => r,
-            None => get_window_geom(&conn, screen.root()),
-        }
+        result = whole_window_result;
     } else {
         result = HacksawResult {
-            window: root,
-            rect: selection,
+            window: whole_window_result.window,
+            rect: selection
         };
     }
 
