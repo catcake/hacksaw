@@ -109,6 +109,7 @@ fn main() -> Result<(), String> {
     conn.flush();
 
     let mut start_pt = xcb::Point::new(0, 0);
+    let mut center_pt = xcb::Point::new(0, 0);
     let mut selection = xcb::Rectangle::new(0, 0, 0, 0);
 
     let mut in_selection = false;
@@ -147,6 +148,8 @@ fn main() -> Result<(), String> {
                 let (top_y, bottom_y) = min_max(motion.event_y(), start_pt.y());
                 let width = (right_x - left_x) as u16;
                 let height = (bottom_y - top_y) as u16;
+
+                center_pt = xcb::Point::new(left_x + (width / 2 as u16) as i16, top_y + (height / 2 as u16) as i16);
 
                 // only save the width and height if we are selecting a
                 // rectangle, since we then use these (non-zero width/height)
@@ -235,7 +238,7 @@ fn main() -> Result<(), String> {
 
     let result;
     // Grab window under cursor
-    let whole_window_result = match get_window_at_point(&conn, root, start_pt, opt.remove_decorations) {
+    let whole_window_result = match get_window_at_point(&conn, root, center_pt, opt.remove_decorations) {
         Some(r) => r,
         None => get_window_geom(&conn, screen.root()),
     };
